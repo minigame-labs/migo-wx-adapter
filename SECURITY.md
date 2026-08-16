@@ -1,5 +1,7 @@
 # Security Policy
 
+[English](SECURITY.md) | [中文](SECURITY.zh-CN.md)
+
 ## Reporting a Vulnerability
 
 Please report security vulnerabilities to **security@minigame-labs.com** rather than opening a
