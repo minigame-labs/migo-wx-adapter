@@ -1,5 +1,7 @@
 # migo-wx-adapter
 
+[English](README.md) | [中文](README.zh-CN.md)
+
 Publishes `globalThis.wx`, aliased to the [migo](https://github.com/minigame-labs/migo) mini-game runtime's own `migo.*` capabilities. Lets mini-game content written against the `wx` global -- unmodified WeChat mini-game source, or content from a similarly-shaped mini-game platform -- run on migo unchanged.
 
 The migo runtime installs only `migo` by default. `wx` is not built in, at any scale -- this adapter is how a game or host opts into it.
