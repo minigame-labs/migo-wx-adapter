@@ -10,7 +10,7 @@
 //   require("./wx-adapter/src/index.js");
 //
 // One-shot: idempotent on re-entry, and safe to load alongside
-// @minigame-labs/migo-adapter (the BOM/DOM adapter) -- they touch disjoint
+// @minigame-labs/migo-web-adapter (the BOM/DOM adapter) -- they touch disjoint
 // globals (`wx` here, `window`/`document`/etc. there).
 //
 // What this is NOT: a reimplementation of wx. `migo`'s capabilities for

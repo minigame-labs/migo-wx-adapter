@@ -15,7 +15,7 @@ If your content calls `migo.*` directly, you don't need this adapter.
 
 A reimplementation of wx. For every capability migo also implements, `wx.foo` and `migo.foo` are **the same function reference** -- this adapter is a naming/shaping layer over migo's own capabilities, not a new implementation of them. If migo doesn't implement a given wx API, `wx.thatApi` is `undefined` here exactly as it is on `migo` directly; no adapter can manufacture a capability the runtime doesn't have.
 
-Concretely, that makes this adapter genuinely small: the whole thing is copying migo's own property descriptors onto a new object, minus a short, explicit exclusion list (see below). There's no protocol translation, no polyfilling, no behavioral shimming -- that's the difference between this and the [BOM/DOM adapter](https://github.com/minigame-labs/migo-adapter), which does real work because browsers and wx mini-games don't share a capability model. wx mini-games and migo do.
+Concretely, that makes this adapter genuinely small: the whole thing is copying migo's own property descriptors onto a new object, minus a short, explicit exclusion list (see below). There's no protocol translation, no polyfilling, no behavioral shimming -- that's the difference between this and the [BOM/DOM adapter (migo-web-adapter)](https://github.com/minigame-labs/migo-web-adapter), which does real work because browsers and wx mini-games don't share a capability model. wx mini-games and migo do.
 
 ## Install
 
@@ -28,7 +28,7 @@ import "@minigame-labs/migo-wx-adapter";
 require("./src/index.js");
 ```
 
-The adapter detects re-entry via `globalThis.__migoWxAdapterInjected` and is safe to import twice. It's also safe to load alongside [`@minigame-labs/migo-adapter`](https://github.com/minigame-labs/migo-adapter) (BOM/DOM) -- they touch disjoint globals.
+The adapter detects re-entry via `globalThis.__migoWxAdapterInjected` and is safe to import twice. It's also safe to load alongside [`@minigame-labs/migo-web-adapter`](https://github.com/minigame-labs/migo-web-adapter) (BOM/DOM) -- they touch disjoint globals.
 
 ### Zero-touch testing via runtime boot prelude
 
