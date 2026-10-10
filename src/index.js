@@ -32,6 +32,13 @@ const NON_WX = new Set([
   "onGamepadDisconnected", "offGamepadDisconnected",
 ]);
 
+// Where wx's name for an API carries the platform's own brand, migo -- which
+// carries no platform's brand -- names it for what it does; wx publishes it
+// under wx's name instead.
+const WX_NAMES = {
+  updateHostApp: "updateWeChatApp",
+};
+
 if (!globalThis.__migoWxAdapterInjected) {
   globalThis.__migoWxAdapterInjected = true;
 
@@ -52,7 +59,7 @@ if (!globalThis.__migoWxAdapterInjected) {
     // projection does: preserves getters/setters and writability rather
     // than flattening everything to a plain value copy.
     const desc = Object.getOwnPropertyDescriptor(globalThis.migo, key);
-    if (desc) Object.defineProperty(wx, key, desc);
+    if (desc) Object.defineProperty(wx, WX_NAMES[key] || key, desc);
   }
 
   Object.defineProperty(globalThis, "wx", {

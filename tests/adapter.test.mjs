@@ -10,6 +10,8 @@ const fakeMigo = {
   getSystemInfoSync: () => ({ platform: "android" }),
   onTouchStart: (cb) => cb,
   clearStorage: () => {},
+  // migo's brand-free name for an API wx names after itself.
+  updateHostApp: () => {},
   // migo-only, no wx equivalent -- must NOT appear on wx.
   getGamepads: () => [],
   onGamepadConnected: () => {},
@@ -40,7 +42,12 @@ assert.equal(typeof wx.offGamepadDisconnected, "undefined");
 //    it doesn't remove anything from migo.
 assert.equal(typeof globalThis.migo.getGamepads, "function");
 
-// 4. globalThis.wx is the published object.
+// 4. An API wx names after the platform reaches wx under that name, and only
+//    under it.
+assert.equal(wx.updateWeChatApp, fakeMigo.updateHostApp, "wx.updateWeChatApp === migo.updateHostApp");
+assert.equal(typeof wx.updateHostApp, "undefined", "migo's own name is not a wx name");
+
+// 5. globalThis.wx is the published object.
 assert.equal(globalThis.wx, wx, "globalThis.wx is set");
 assert.equal(globalThis.__migoWxAdapterInjected, true);
 
