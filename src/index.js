@@ -20,18 +20,6 @@
 // as it is on `migo` directly; this adapter cannot manufacture capabilities
 // the runtime doesn't have.
 
-// Capabilities migo exposes beyond the common mini-game surface -- present
-// on real engines for browser-content interop (Web Gamepad), but with no
-// wx equivalent. Kept off `wx` so feature-detection code ported from real
-// wx content sees the same absence it would see there. Mirrors
-// `_NON_MINIGAME_API` in the engine's own `97_migo_namespace.js`; update
-// both together if that set ever changes.
-const NON_WX = new Set([
-  "getGamepads",
-  "onGamepadConnected", "offGamepadConnected",
-  "onGamepadDisconnected", "offGamepadDisconnected",
-]);
-
 // Where wx's name for an API carries the platform's own brand, migo -- which
 // carries no platform's brand -- names it for what it does; wx publishes it
 // under wx's name instead.
@@ -54,7 +42,6 @@ if (!globalThis.__migoWxAdapterInjected) {
   const keys = Object.getOwnPropertyNames(globalThis.migo);
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
-    if (NON_WX.has(key)) continue;
     // Mirror the descriptor as-is, the same way the engine's own namespace
     // projection does: preserves getters/setters and writability rather
     // than flattening everything to a plain value copy.

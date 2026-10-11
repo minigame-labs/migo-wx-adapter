@@ -12,7 +12,7 @@ const fakeMigo = {
   clearStorage: () => {},
   // migo's brand-free name for an API wx names after itself.
   updateHostApp: () => {},
-  // migo-only, no wx equivalent -- must NOT appear on wx.
+  // Gamepads are a wx API (device/gamepad) -- they reach wx like any other.
   getGamepads: () => [],
   onGamepadConnected: () => {},
   offGamepadConnected: () => {},
@@ -31,23 +31,19 @@ assert.equal(wx.createCanvas, fakeMigo.createCanvas, "wx.createCanvas === migo.c
 assert.equal(wx.getSystemInfoSync, fakeMigo.getSystemInfoSync);
 assert.equal(wx.clearStorage, fakeMigo.clearStorage);
 
-// 2. Gamepad (migo-only, no real-wx equivalent) is excluded from wx.
-assert.equal(typeof wx.getGamepads, "undefined", "getGamepads must not leak onto wx");
-assert.equal(typeof wx.onGamepadConnected, "undefined");
-assert.equal(typeof wx.offGamepadConnected, "undefined");
-assert.equal(typeof wx.onGamepadDisconnected, "undefined");
-assert.equal(typeof wx.offGamepadDisconnected, "undefined");
+// 2. Every migo name reaches wx -- nothing on migo is kept off wx. Gamepads
+//    included: they are wx's own device API, not a browser-only extra.
+for (const key of Object.getOwnPropertyNames(fakeMigo)) {
+  if (key === "updateHostApp") continue;
+  assert.equal(wx[key], fakeMigo[key], `wx.${key} === migo.${key}`);
+}
 
-// 3. Gamepad stays reachable on migo directly -- this adapter narrows wx,
-//    it doesn't remove anything from migo.
-assert.equal(typeof globalThis.migo.getGamepads, "function");
-
-// 4. An API wx names after the platform reaches wx under that name, and only
+// 3. An API wx names after the platform reaches wx under that name, and only
 //    under it.
 assert.equal(wx.updateWeChatApp, fakeMigo.updateHostApp, "wx.updateWeChatApp === migo.updateHostApp");
 assert.equal(typeof wx.updateHostApp, "undefined", "migo's own name is not a wx name");
 
-// 5. globalThis.wx is the published object.
+// 4. globalThis.wx is the published object.
 assert.equal(globalThis.wx, wx, "globalThis.wx is set");
 assert.equal(globalThis.__migoWxAdapterInjected, true);
 
