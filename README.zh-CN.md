@@ -58,15 +58,13 @@ RuntimeConfig config = new RuntimeConfig.Builder(context)
         .build();
 ```
 
-## 哪些能力被排除在 `wx` 之外
+## 与 `migo` 名字不同的 API
 
-migo 暴露的、超出常见小游戏能力面的部分——为了与浏览器内容互通而存在（Web Gamepad API），但在真实微信上没有对应的 wx API：
+每个 `migo.*` 名字都以同一个函数发布到 `wx` 上。migo 不带任何平台的品牌名，所以 wx 以自家平台命名的 API，在 migo 里按语义命名，由本适配器以 wx 的名字发布：
 
-| 名称 | 原因 |
+| `migo` | `wx` |
 |---|---|
-| `getGamepads`、`onGamepadConnected`、`offGamepadConnected`、`onGamepadDisconnected`、`offGamepadDisconnected` | 浏览器内容能力，不是 wx API。不放进 `wx` 是为了让从真实 wx 内容移植过来的特性检测代码（`if (!wx.getGamepads) { ... }`）看到的缺失情况与在微信上一致。仍可直接在 `migo` 上访问。 |
-
-该列表与引擎自身 `97_migo_namespace.js` 中的 `_NON_MINIGAME_API` 保持一致；如果那边的集合发生变化，需要同步更新这里。
+| `updateHostApp` | `updateWeChatApp` |
 
 ## 目录结构
 

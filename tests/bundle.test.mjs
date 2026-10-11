@@ -35,10 +35,9 @@ assert.equal(typeof sandbox.wx, "object", "wx is published");
 assert.equal(sandbox.wx.createCanvas, fakeMigo.createCanvas, "wx.createCanvas === migo.createCanvas");
 assert.equal(sandbox.wx.getSystemInfoSync, fakeMigo.getSystemInfoSync);
 
-// 2. migo-only capabilities excluded from wx.
-assert.equal(typeof sandbox.wx.getGamepads, "undefined", "getGamepads must not leak onto wx");
-assert.equal(typeof sandbox.wx.onGamepadConnected, "undefined");
-assert.equal(typeof sandbox.migo.getGamepads, "function", "still reachable on migo directly");
+// 2. Gamepads are wx API too -- same reference as migo's.
+assert.equal(sandbox.wx.getGamepads, fakeMigo.getGamepads, "wx.getGamepads === migo.getGamepads");
+assert.equal(sandbox.wx.onGamepadConnected, fakeMigo.onGamepadConnected);
 
 // 3. Idempotent: re-evaluating the bundle doesn't rebuild wx or throw.
 const wxBefore = sandbox.wx;

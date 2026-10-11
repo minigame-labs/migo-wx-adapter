@@ -58,15 +58,13 @@ RuntimeConfig config = new RuntimeConfig.Builder(context)
         .build();
 ```
 
-## What's excluded from `wx`
+## Names that differ from `migo`
 
-Capabilities migo exposes beyond the common mini-game surface -- present for browser-content interop (the Web Gamepad API), but with no wx equivalent on real WeChat:
+Every `migo.*` name is published on `wx` as the same function. migo carries no platform's brand, so where wx names an API after its own platform, migo names it for what it does and this adapter publishes it under wx's name:
 
-| Name | Reason |
+| `migo` | `wx` |
 |---|---|
-| `getGamepads`, `onGamepadConnected`, `offGamepadConnected`, `onGamepadDisconnected`, `offGamepadDisconnected` | Browser content capability, not a wx API. Left off `wx` so feature-detection ported from real wx content (`if (!wx.getGamepads) { ... }`) sees the same absence it would on WeChat. Still reachable on `migo` directly. |
-
-This list mirrors `_NON_MINIGAME_API` in the engine's own `97_migo_namespace.js`; if that set ever changes, update both together.
+| `updateHostApp` | `updateWeChatApp` |
 
 ## Layout
 
