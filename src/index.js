@@ -52,6 +52,52 @@ if (!globalThis.__migoWxAdapterInjected) {
   Object.defineProperty(globalThis, "wx", {
     value: wx, writable: true, enumerable: true, configurable: true,
   });
+
+  publishWXWebAssembly(globalThis.migo);
+}
+
+// The platform's wasm global. Its `instantiate` takes the path of a .wasm file in the game's
+// package -- not bytes, not a URL -- and its other members are WebAssembly's own. Without it a
+// game built for the platform that loads wasm this way stops on a ReferenceError: a Cocos Creator
+// 3.8 mini-game build stopped there, before its first scene.
+//
+// Published only where the engine has WebAssembly: a jitless engine has none, and content that
+// looks for WXWebAssembly then sees what it sees on a platform without wasm.
+function publishWXWebAssembly(migo) {
+  const W = globalThis.WebAssembly;
+  if (typeof W !== "object" || W === null || "WXWebAssembly" in globalThis) return;
+  // The ones that take wasm bytes or a stream. The platform's object takes a path instead.
+  const TAKE_BYTES = new Set(["compile", "compileStreaming", "instantiate", "instantiateStreaming", "validate"]);
+  const wxwasm = {};
+  for (const key of Object.getOwnPropertyNames(W)) {
+    if (TAKE_BYTES.has(key)) continue;
+    Object.defineProperty(wxwasm, key, Object.getOwnPropertyDescriptor(W, key));
+  }
+  Object.defineProperty(wxwasm, "instantiate", {
+    value: function instantiate(path, imports) {
+      // Never throws: every refusal is the promise's, as WebAssembly.instantiate's are.
+      return new Promise((resolve, reject) => {
+        if (typeof path !== "string" || path === "") {
+          throw new TypeError("WXWebAssembly.instantiate takes the path of a .wasm file in the game's package");
+        }
+        if (path.endsWith(".br")) {
+          // Handed to WebAssembly as they are, brotli bytes fail as a missing magic number,
+          // which names the wrong problem.
+          throw new TypeError("WXWebAssembly.instantiate: " + path + " is brotli-compressed, and this runtime " +
+            "has no brotli decoder; ship the .wasm uncompressed");
+        }
+        migo.getFileSystemManager().readFile({
+          filePath: path,
+          success: (res) => resolve(res.data),
+          fail: (err) => reject(new Error("WXWebAssembly.instantiate: " + path + ": " + (err && err.errMsg))),
+        });
+      }).then((bytes) => W.instantiate(bytes, imports));
+    },
+    writable: true, enumerable: false, configurable: true,
+  });
+  Object.defineProperty(globalThis, "WXWebAssembly", {
+    value: wxwasm, writable: true, enumerable: false, configurable: true,
+  });
 }
 
 export default globalThis.wx;

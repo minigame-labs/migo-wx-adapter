@@ -66,6 +66,15 @@ Every `migo.*` name is published on `wx` as the same function. migo carries no p
 |---|---|
 | `updateHostApp` | `updateWeChatApp` |
 
+## `WXWebAssembly`
+
+Published beside `wx` where the engine has `WebAssembly`. `WXWebAssembly.instantiate(path, imports)`
+takes the path of a `.wasm` file in the game's package -- not bytes, not a URL -- reads it through
+the engine's file system, and answers as `WebAssembly.instantiate` does. Its other members are
+`WebAssembly`'s own (`Memory`, `Table`, `Global`, `Module`, `Instance`, the error types); the ones
+that take bytes (`compile`, `validate`, the streaming pair) are not offered. A brotli-compressed
+`.wasm.br` is refused: the runtime has no brotli decoder, so ship the `.wasm` uncompressed.
+
 ## Layout
 
 ```

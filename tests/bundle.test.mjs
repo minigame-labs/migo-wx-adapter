@@ -45,7 +45,18 @@ vm.runInContext(bundleSrc, sandbox, { filename: bundlePath });
 assert.equal(sandbox.wx, wxBefore, "second eval is a no-op (sentinel honored)");
 assert.equal(sandbox.__migoWxAdapterInjected, true);
 
-// 4. Fails loudly if migo isn't present -- confirms the adapter can't
+// 4. WXWebAssembly is published beside wx, and only where the engine has WebAssembly: a jitless
+//    engine has none, and a game looking for it must see none rather than a shell that fails.
+assert.equal(typeof sandbox.WXWebAssembly, "object", "WXWebAssembly is published");
+assert.equal(sandbox.WXWebAssembly.Memory, vm.runInContext("WebAssembly.Memory", sandbox));
+const jitless = { console, migo: fakeMigo };
+vm.createContext(jitless);
+vm.runInContext("delete globalThis.WebAssembly", jitless);
+vm.runInContext(bundleSrc, jitless, { filename: bundlePath });
+assert.equal(typeof jitless.wx, "object", "wx is published without WebAssembly");
+assert.equal("WXWebAssembly" in jitless, false, "and WXWebAssembly is not");
+
+// 5. Fails loudly if migo isn't present -- confirms the adapter can't
 //    silently publish an empty/broken wx.
 const emptySandbox = { console };
 vm.createContext(emptySandbox);
