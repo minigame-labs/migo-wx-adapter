@@ -66,6 +66,13 @@ RuntimeConfig config = new RuntimeConfig.Builder(context)
 |---|---|
 | `updateHostApp` | `updateWeChatApp` |
 
+## `WXWebAssembly`
+
+引擎有 `WebAssembly` 时，与 `wx` 一同发布。`WXWebAssembly.instantiate(path, imports)` 接受游戏包内 `.wasm`
+文件的路径（不接受字节，也不接受 URL），经引擎的文件系统读取，返回值同 `WebAssembly.instantiate`。其余成员就是
+`WebAssembly` 自己的（`Memory`、`Table`、`Global`、`Module`、`Instance` 和各错误类型）；接受字节的那几个（`compile`、
+`validate`、两个 streaming 方法）不提供。brotli 压缩的 `.wasm.br` 会被拒绝：运行时没有 brotli 解码器，请发布未压缩的 `.wasm`。
+
 ## 目录结构
 
 ```
