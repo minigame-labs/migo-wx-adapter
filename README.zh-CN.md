@@ -2,7 +2,7 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-发布 `globalThis.wx`，映射到 [migo](https://github.com/minigame-labs/migo) 小游戏运行时自身的 `migo.*` 能力。让针对 `wx` 全局对象编写的小游戏内容——未经改动的微信小游戏源码，或形态类似的小游戏平台上的内容——原样运行在 migo 上。
+发布 `globalThis.wx`，映射到 [migo](https://github.com/minigame-labs/migo-runtime) 小游戏运行时自身的 `migo.*` 能力。让针对 `wx` 全局对象编写的小游戏内容——未经改动的微信小游戏源码，或形态类似的小游戏平台上的内容——原样运行在 migo 上。
 
 migo 运行时默认只安装 `migo`。任何规模下 `wx` 都不是内置的——这个适配层就是游戏或宿主选择启用它的方式。
 
