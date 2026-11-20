@@ -81,10 +81,15 @@ function publishWXWebAssembly(migo) {
           throw new TypeError("WXWebAssembly.instantiate takes the path of a .wasm file in the game's package");
         }
         if (path.endsWith(".br")) {
-          // Handed to WebAssembly as they are, brotli bytes fail as a missing magic number,
-          // which names the wrong problem.
-          throw new TypeError("WXWebAssembly.instantiate: " + path + " is brotli-compressed, and this runtime " +
-            "has no brotli decoder; ship the .wasm uncompressed");
+          // The platform takes a brotli-compressed module (.wasm.br) as well as a .wasm: the
+          // engine's readCompressedFile decodes it, and WebAssembly gets the module's bytes.
+          migo.getFileSystemManager().readCompressedFile({
+            filePath: path,
+            compressionAlgorithm: "br",
+            success: (res) => resolve(res.data),
+            fail: (err) => reject(new Error("WXWebAssembly.instantiate: " + path + ": " + (err && err.errMsg))),
+          });
+          return;
         }
         migo.getFileSystemManager().readFile({
           filePath: path,

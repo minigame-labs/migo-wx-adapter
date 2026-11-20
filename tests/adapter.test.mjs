@@ -2,6 +2,7 @@
 // Run with `node tests/adapter.test.mjs` from this dir or via npm test.
 
 import assert from "node:assert/strict";
+import { brotliCompressSync, brotliDecompressSync } from "node:zlib";
 
 // ---- Fake migo runtime, installed on globalThis BEFORE importing the
 //      adapter. The adapter reads `globalThis.migo` at module-eval time.
@@ -25,9 +26,17 @@ const fakeMigo = {
       const data = PACKAGE[filePath];
       queueMicrotask(() => (data ? success({ data }) : fail({ errMsg: `readFile:fail no such file or directory ${filePath}` })));
     },
+    readCompressedFile({ filePath, compressionAlgorithm, success, fail }) {
+      compressedReads.push([filePath, compressionAlgorithm]);
+      const data = PACKAGE[filePath];
+      queueMicrotask(() => (data
+        ? success({ data: new Uint8Array(brotliDecompressSync(data)).buffer })
+        : fail({ errMsg: `readCompressedFile:fail no such file or directory ${filePath}` })));
+    },
   }),
 };
 const reads = [];
+const compressedReads = [];
 const PACKAGE = {
   "wasm/add.wasm": new Uint8Array([
     0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x01, 0x07, 0x01, 0x60, 0x02, 0x7f, 0x7f, 0x01,
@@ -94,8 +103,14 @@ await refused(PACKAGE["wasm/add.wasm"], wantsPath, "bytes are refused, as the pl
 await refused("", wantsPath, "an empty path is refused");
 await refused("wasm/missing.wasm", /wasm\/missing\.wasm: readFile:fail no such file/, "a missing file names itself");
 reads.length = 0;
-await refused("wasm/add.wasm.br", /brotli/, "a brotli file is refused as what it is");
-assert.deepEqual(reads, [], "and is not read first");
+// The platform also takes a brotli-compressed module (.wasm.br): decoded by the engine's
+// readCompressedFile, not read as bytes and handed to WebAssembly.
+PACKAGE["wasm/add.wasm.br"] = brotliCompressSync(PACKAGE["wasm/add.wasm"]);
+const compressed = await WXW.instantiate("wasm/add.wasm.br", {});
+assert.equal(compressed.instance.exports.add(20, 22), 42, "the brotli module read from the package runs");
+assert.deepEqual(compressedReads, [["wasm/add.wasm.br", "br"]], "decoded by readCompressedFile, as br");
+assert.deepEqual(reads, [], "and not read as plain bytes");
+await refused("wasm/missing.wasm.br", /wasm\/missing\.wasm\.br: readCompressedFile:fail no such file/, "a missing .br names itself");
 
 // Idempotency on re-entry is exercised in bundle.test.mjs, which runs the
 // raw script twice via vm.runInContext -- ESM import caching makes a second
