@@ -18,7 +18,12 @@
 // this adapter is a naming/shaping layer, not new behavior. If migo does
 // not implement a given wx API, `wx.thatApi` is `undefined` here exactly
 // as it is on `migo` directly; this adapter cannot manufacture capabilities
-// the runtime doesn't have.
+// the runtime doesn't have. Beside wx it publishes the platform's own globals
+// a mini-game reaches for -- WXWebAssembly and requirePlugin -- written in
+// terms of migo.*.
+
+import { installRequirePlugin, registerPluginProvider } from "./require-plugin.js";
+import { createUnityPlugin } from "./plugins/unity.js";
 
 // Where wx's name for an API carries the platform's own brand, migo -- which
 // carries no platform's brand -- names it for what it does; wx publishes it
@@ -54,6 +59,11 @@ if (!globalThis.__migoWxAdapterInjected) {
   });
 
   publishWXWebAssembly(globalThis.migo);
+
+  // requirePlugin and the plugins the platform hosts that this adapter provides: UnityPlugin, the start-up of a
+  // Tuanjie (Unity) mini-game export (src/plugins/unity.js).
+  registerPluginProvider("UnityPlugin", createUnityPlugin);
+  installRequirePlugin(globalThis, globalThis.migo);
 }
 
 // The platform's wasm global. Its `instantiate` takes the path of a .wasm file in the game's

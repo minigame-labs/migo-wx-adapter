@@ -56,7 +56,12 @@ vm.runInContext(bundleSrc, jitless, { filename: bundlePath });
 assert.equal(typeof jitless.wx, "object", "wx is published without WebAssembly");
 assert.equal("WXWebAssembly" in jitless, false, "and WXWebAssembly is not");
 
-// 5. Fails loudly if migo isn't present -- confirms the adapter can't
+// 5. requirePlugin is published beside wx; a plugin nothing here provides is not defined.
+assert.equal(typeof sandbox.requirePlugin, "function", "requirePlugin is published");
+assert.throws(() => vm.runInContext('requirePlugin("NoSuchPlugin")', sandbox), /plugin "NoSuchPlugin" is not defined/);
+assert.equal(typeof vm.runInContext('requirePlugin("UnityPlugin").default', sandbox), "function", "UnityPlugin is provided");
+
+// 6. Fails loudly if migo isn't present -- confirms the adapter can't
 //    silently publish an empty/broken wx.
 const emptySandbox = { console };
 vm.createContext(emptySandbox);
